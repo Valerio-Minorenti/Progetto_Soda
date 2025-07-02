@@ -40,26 +40,3 @@ df.to_excel(output_file, index=False)
 print(f"File finale salvato in: '{output_file}'")
 
 
-deck_counts = Counter(data['Deck'].dropna())
-for idx in data[solo & data['Deck'].isna()].index:
-    min_count = min(deck_counts.values())
-    least_used_decks = [deck for deck, count in deck_counts.items() if count == min_count]
-    chosen_deck = least_used_decks[0]
-    data.at[idx, 'Deck'] = chosen_deck
-    deck_counts[chosen_deck] += 1
-
-# Assegna Side mancante in base a Transported
-for idx in data[solo & data['Side'].isna()].index:
-    transported = data.at[idx, 'Transported']
-    if transported is True:
-        data.at[idx, 'Side'] = 'S'
-    elif transported is False:
-        data.at[idx, 'Side'] = 'P'
-
-# Controlla quanti valori mancanti restano
-missing_deck = data.loc[solo, 'Deck'].isna().sum()
-missing_cabin_number = data.loc[solo, 'Number'].isna().sum()
-missing_side = data.loc[solo, 'Side'].isna().sum()
-print(f"Valori mancanti in Deck: {missing_deck}")
-print(f"Valori mancanti in CabinNumber: {missing_cabin_number}")
-print(f"Valori mancanti in Side: {missing_side}")
