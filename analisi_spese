@@ -1,0 +1,53 @@
+# Expenditure features
+exp_feats=['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
+
+# Plot expenditure features
+fig=plt.figure(figsize=(10,20))
+for i, var_name in enumerate(exp_feats):
+    # Left plot
+    ax=fig.add_subplot(5,2,2*i+1)
+    sns.histplot(data=train, x=var_name, axes=ax, bins=30, kde=False, hue='Transported')
+    ax.set_title(var_name)
+    
+    # Right plot (truncated)
+    ax=fig.add_subplot(5,2,2*i+2)
+    sns.histplot(data=train, x=var_name, axes=ax, bins=30, kde=True, hue='Transported')
+    plt.ylim([0,100])
+    ax.set_title(var_name)
+fig.tight_layout()  # Improves appearance a bit
+plt.show()
+
+data['Expendures'] = data[['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']].sum(axis=1, skipna = True)
+
+# Crea la colonna booleana: 1 se ha speso 0, 0 altrimenti
+data['NoSpending'] = (data['Expendures'] == 0).astype(int)
+
+
+# Calcolo della mediana
+x1 =(data['Expendures']).median()
+print(x1)
+
+plt.figure(figsize=(10, 6))
+sns.histplot(data=data, x='Expendures', bins=30, kde=False, hue='Transported')
+plt.title('Distribuzione delle spese totali (Expendures)')
+plt.xlabel('Expendures')
+plt.ylabel('Numero di passeggeri')
+plt.show()
+
+# Calcolo della mediana
+expendures_median = data['Expendures'].median()
+
+# Filtro per Expendures < mediana
+filtered_data = data[data['Expendures'] <= expendures_median]
+x2 = data [data['Expendures'] > expendures_median]
+
+# Conta quanti sono Transported = True e False
+transported_counts1 = filtered_data['Transported'].value_counts()
+transported_counts2 = x2['Transported'].value_counts()
+
+# Stampa i conteggi
+print("Conto di 'Transported' per passeggeri con Expendures < mediana:")
+print(transported_counts1, transported_counts2 )
+
+# Creazione della feature binaria
+data['Expendures'] = (data['Expendures'] > expendures_median)
