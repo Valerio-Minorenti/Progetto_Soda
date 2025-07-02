@@ -23,7 +23,7 @@ df = pd.read_excel(excel_file)
 df['Group'] = df['PassengerId'].str.split('_').str[0]
 
 # Estrae le componenti della Cabina
-df[['Deck', 'Num', 'Side']] = df['Cabin'].str.split('/', expand=True)
+df[['Deck', 'CabinNum', 'Side']] = df['Cabin'].str.split('/', expand=True)
 
 # Droppa la colonna Cabin
 df.drop(columns=['Cabin'], inplace=True)
