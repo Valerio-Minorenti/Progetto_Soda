@@ -65,3 +65,12 @@ for i, var_name in enumerate(cat_feats):
 fig.tight_layout()  # Improves appearance a bit
 plt.show()
 
+# Figure size
+plt.figure(figsize=(10,4))
+
+# Histogram
+sns.histplot(data=train, x='Age', hue='Transported', binwidth=1, kde=True)
+
+# Aesthetics
+plt.title('Age distribution')
+plt.xlabel('Age (years)')
