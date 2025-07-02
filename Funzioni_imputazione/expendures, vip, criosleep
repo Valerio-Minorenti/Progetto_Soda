@@ -1,0 +1,6 @@
+# Riempi i valori mancanti in CryoSleep basandoti su NoSpending
+data.loc[data['CryoSleep'].isna() & (data['NoSpending'] == 1), 'CryoSleep'] = True
+data.loc[data['CryoSleep'].isna() & (data['NoSpending'] == 0), 'CryoSleep'] = False
+# Riempi i valori mancanti in Expendures basandoti su CryoSleep
+data.loc[data['Expendures'].isna() & (data['CryoSleep'] == True), 'Expendures'] = False
+data.loc[data['Expendures'].isna() & (data['VIP'] == True), 'Expendures'] = True
