@@ -19,4 +19,45 @@ def riempi_Home_Planet(df):
 
     print('#HomePlanet missing values after:', missing_aft)
 
+    # Joint distribution of CabinDeck and HomePlanet
+CDHP_gb=data.groupby(['Deck','HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
+
+# Heatmap of missing values
+plt.figure(figsize=(10,4))
+sns.heatmap(CDHP_gb.T, annot=True, fmt='g', cmap='coolwarm')
+
+# Missing values before
+HP_bef=data['HomePlanet'].isna().sum()
+
+# Decks A, B, C or T came from Europa
+data.loc[(data['HomePlanet'].isna()) & (data['Deck'].isin(['A', 'B', 'C', 'T'])), 'HomePlanet']='Europa'
+
+# Deck G came from Earth
+data.loc[(data['HomePlanet'].isna()) & (data['Deck']=='G'), 'HomePlanet']='Earth'
+
+# Print number of missing values left
+print('#HomePlanet missing values before:',HP_bef)
+print('#HomePlanet missing values after:',data['HomePlanet'].isna().sum())
+
+# Joint distribution of Surname and HomePlanet
+SHP_gb=data.groupby(['Surname','HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
+
+# Countplot of unique values
+plt.figure(figsize=(10,4))
+sns.countplot((SHP_gb>0).sum(axis=1))
+plt.title('Number of unique planets per surname')
+
+# Missing values before
+HP_bef=data['HomePlanet'].isna().sum()
+
+# Passengers with missing HomePlanet and in a family with known HomePlanet
+SHP_index=data[data['HomePlanet'].isna()][(data[data['HomePlanet'].isna()]['Surname']).isin(SHP_gb.index)].index
+
+# Fill corresponding missing values
+data.loc[SHP_index,'HomePlanet']=data.iloc[SHP_index,:]['Surname'].map(lambda x: SHP_gb.idxmax(axis=1)[x])
+
+# Print number of missing values left
+print('#HomePlanet missing values before:',HP_bef)
+print('#HomePlanet missing values after:',data['HomePlanet'].isna().sum())
+
     return df
