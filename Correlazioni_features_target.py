@@ -33,3 +33,11 @@ target_corr = correlation_matrix['Transported'].drop('Transported').sort_values(
 # Stampa i risultati
 for feature, corr in target_corr.items():
     print(f"{feature}: correlazione {corr:.2f}")
+
+# 1. Calcola la joint distribution
+GHP_gb = data.groupby(['Group', 'HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
+
+# 2. Plot numero di pianeti unici per gruppo
+sns.countplot((GHP_gb > 0).sum(axis=1))
+plt.title('Number of unique home planets per group')
+plt.show()
