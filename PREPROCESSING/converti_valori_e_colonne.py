@@ -20,7 +20,7 @@ print(f"Conversione completata: '{csv_file}' → '{excel_file}'")
 df = pd.read_excel(excel_file)
 
 # Estrae il gruppo da PassengerId
-df['Group'] = df['PassengerId'].str.split('_').str[0]
+df['Group'] = df['PassengerId'].str.split('_').str[0].astype(int)
 
 # Estrae le componenti della Cabina
 df[['Deck', 'CabinNum', 'Side']] = df['Cabin'].str.split('/', expand=True)
