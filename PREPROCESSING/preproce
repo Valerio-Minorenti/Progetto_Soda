@@ -1,0 +1,3 @@
+
+data[['Deck', 'CabinNumber', 'Side']] = data['Cabin'].str.split('/', expand=True)
+data[['Nome', 'Surname']] = data['Name'].str.split(' ', expand=True)
