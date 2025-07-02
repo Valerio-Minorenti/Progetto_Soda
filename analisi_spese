@@ -51,3 +51,17 @@ print(transported_counts1, transported_counts2 )
 
 # Creazione della feature binaria
 data['Expendures'] = (data['Expendures'] > expendures_median)
+
+
+# Categorical features
+cat_feats=['HomePlanet', 'CryoSleep', 'Destination', 'VIP', 'Expendures', 'NoSpending']
+
+# Plot categorical features
+fig=plt.figure(figsize=(10,16))
+for i, var_name in enumerate(cat_feats):
+    ax=fig.add_subplot(5,1,i+1)
+    sns.countplot(data=data, x=var_name, axes=ax, hue='Transported')
+    ax.set_title(var_name)
+fig.tight_layout()  # Improves appearance a bit
+plt.show()
+
