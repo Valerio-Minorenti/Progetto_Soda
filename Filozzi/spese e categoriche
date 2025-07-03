@@ -28,6 +28,26 @@ plt.title('Passenger travelling solo or not')
 plt.ylim([0,3000])
 
 
+plt.subplot(3,1,2)
+sns.histplot(data=train, x='Cabin_number', hue='Transported',binwidth=20)
+plt.vlines(300, ymin=0, ymax=200, color='black')
+plt.vlines(600, ymin=0, ymax=200, color='black')
+plt.vlines(900, ymin=0, ymax=200, color='black')
+plt.vlines(1200, ymin=0, ymax=200, color='black')
+plt.vlines(1500, ymin=0, ymax=200, color='black')
+plt.vlines(1800, ymin=0, ymax=200, color='black')
+plt.title('Cabin number')
+plt.xlim([0,2000])
+
+# New features - training set
+train['Cabin_region1']=(train['Cabin_number']<300).astype(int)   # one-hot encoding
+train['Cabin_region2']=((train['Cabin_number']>=300) & (train['Cabin_number']<600)).astype(int)
+train['Cabin_region3']=((train['Cabin_number']>=600) & (train['Cabin_number']<900)).astype(int)
+train['Cabin_region4']=((train['Cabin_number']>=900) & (train['Cabin_number']<1200)).astype(int)
+train['Cabin_region5']=((train['Cabin_number']>=1200) & (train['Cabin_number']<1500)).astype(int)
+train['Cabin_region6']=((train['Cabin_number']>=1500) & (train['Cabin_number']<1800)).astype(int)
+train['Cabin_region7']=(train['Cabin_number']>=1800).astype(int)
+
 
 # Expenditure features
 exp_feats=['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
