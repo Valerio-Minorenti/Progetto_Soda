@@ -1,3 +1,34 @@
+# New feature - Group
+train['Group'] = train['PassengerId'].apply(lambda x: x.split('_')[0]).astype(int)
+test['Group'] = test['PassengerId'].apply(lambda x: x.split('_')[0]).astype(int)
+
+# New feature - Group size
+train['Group_size']=train['Group'].map(lambda x: pd.concat([train['Group'], test['Group']]).value_counts()[x])
+test['Group_size']=test['Group'].map(lambda x: pd.concat([train['Group'], test['Group']]).value_counts()[x])
+
+# Plot distribution of new features
+plt.figure(figsize=(20,4))
+plt.subplot(1,2,1)
+sns.histplot(data=train, x='Group', hue='Transported', binwidth=1)
+plt.title('Group')
+
+plt.subplot(1,2,2)
+sns.countplot(data=train, x='Group_size', hue='Transported')
+plt.title('Group size')
+fig.tight_layout()
+
+# New feature
+train['Solo']=(train['Group_size']==1).astype(int)
+test['Solo']=(test['Group_size']==1).astype(int)
+
+# New feature distribution
+plt.figure(figsize=(10,4))
+sns.countplot(data=train, x='Solo', hue='Transported')
+plt.title('Passenger travelling solo or not')
+plt.ylim([0,3000])
+
+
+
 # Expenditure features
 exp_feats=['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
 
