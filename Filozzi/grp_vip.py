@@ -6,6 +6,8 @@ df = pd.read_excel("train_cabin.xlsx")
 # Estrae il gruppo
 df['Group'] = df['PassengerId'].str.split('_').str[0]
 
+df['VIP'].value_counts()
+
 # Conta dimensione dei gruppi
 group_sizes = df['Group'].value_counts()
 gruppi_validi = group_sizes[group_sizes >= 2].index
