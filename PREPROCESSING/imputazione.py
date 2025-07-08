@@ -1,16 +1,16 @@
-from Funzioni_imputazione.riempi_Home_Planet import riempi_Home_Planet
-from Funzioni_imputazione.riempi_VIP import riempi_vip
-from Funzioni_imputazione.riempi_cryo import riempi_cryo
-from Funzioni_imputazione.riempi_deck import riempi_deck
-from Funzioni_imputazione.riempi_Destination import riempi_Destination
-from Funzioni_imputazione.riempi_Surname import riempi_Surname
-from Funzioni_imputazione.riempi_side import riempi_side
-from Funzioni_imputazione.missing_values import missing_values
-from Funzioni_imputazione.encoding import encoding_statico
-from Funzioni_imputazione.adaboost import adaboost
-from Funzioni_imputazione.riempi_age import riempi_age_group
-from Funzioni_imputazione.riempi_cabinregion import riempi_cabinregion
-
+from riempi_Home_Planet import riempi_Home_Planet
+from riempi_VIP import riempi_vip
+from riempi_cryo import riempi_cryo
+from riempi_deck import riempi_deck
+from riempi_Destination import riempi_Destination
+from riempi_Surname import riempi_Surname
+from riempi_side import riempi_side
+from missing_values import missing_values
+from encoding import encoding_statico
+from adaboost import adaboost
+from riempi_age import riempi_age_group
+from riempi_cabinregion import riempi_cabinregion
+from RandomForest import train_random_forest
 
 def imputazione(combined_df, target_column='Transported'):
     combined_df = riempi_Home_Planet(combined_df)
@@ -25,6 +25,7 @@ def imputazione(combined_df, target_column='Transported'):
     combined_df = missing_values(combined_df)
     df_train_encoded, df_val_encoded, df_test_encoded = encoding_statico(combined_df)
     model = adaboost(df_train_encoded, df_val_encoded, target_column, n_estimators=100, random_state=42)
+    combined_df = train_random_forest(df_train_encoded, model_output_path='rf_model.pkl')
     
 
     return combined_df, model
