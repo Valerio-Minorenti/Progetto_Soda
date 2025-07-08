@@ -24,8 +24,6 @@ def imputazione(combined_df, target_column='Transported'):
     combined_df = riempi_age_group(combined_df)
     combined_df = missing_values(combined_df)
     df_train_encoded, df_val_encoded, df_test_encoded = encoding_statico(combined_df)
-    model = adaboost(df_train_encoded, df_val_encoded, target_column, n_estimators=100, random_state=42)
-    combined_df = train_random_forest(df_train_encoded, model_output_path='rf_model.pkl')
-    
-
-    return combined_df, model
+    ad_model = adaboost(df_train_encoded, df_val_encoded, target_column, n_estimators=100, random_state=42)
+    rf_model = train_random_forest(df_train_encoded, df_val_encoded, target_column)
+    return combined_df, ad_model, rf_model #, df_train_encoded, df_val_encoded, df_test_encoded, perché non li ritorniamo?
