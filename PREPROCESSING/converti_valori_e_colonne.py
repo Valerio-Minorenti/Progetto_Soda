@@ -1,42 +1,106 @@
 import pandas as pd
+import numpy as np
 
-# Percorso del file CSV
-csv_file = 'C:/Users/Standard/Desktop/Titanic/progetto_Soda/train.csv'
+def converti_valori_colonne():
 
-# Percorso intermedio Excel
-excel_file = 'C:/Users/Standard/Desktop/Titanic/progetto_Soda/trainozzo.xlsx'
+    # === 1. Carica i file ===
+    train_df = pd.read_excel('C:/Users/dvita/Desktop/TITANIC/train_holdout.xlsx')
+    val_df   = pd.read_excel('C:/Users/dvita/Desktop/TITANIC/val_holdout.xlsx')
+    test_df  = pd.read_csv('C:/Users/dvita/Desktop/TITANIC/test.csv')
 
-# Percorso finale
-output_file = 'tabellozza.xlsx'
+    # === 2. Aggiungi flag identificativi ===
+    train_df['IsTrain'] = True
+    train_df['IsValidation'] = False
+    train_df['IsTest'] = False
 
-# Legge il file CSV
-df = pd.read_csv(csv_file)
+    val_df['IsTrain'] = False
+    val_df['IsValidation'] = True
+    val_df['IsTest'] = False
 
-# Salva il file in formato Excel
-df.to_excel(excel_file, index=False)
-print(f"Conversione completata: '{csv_file}' → '{excel_file}'")
+    test_df['IsTrain'] = False
+    test_df['IsValidation'] = False
+    test_df['IsTest'] = True
 
-# Riapre il file Excel
-df = pd.read_excel(excel_file)
+    # === 3. Unisci i tre dataset ===
+    combined_df = pd.concat([train_df, val_df, test_df], ignore_index=True)
 
-# Estrae il gruppo da PassengerId
-df['Group'] = df['PassengerId'].str.split('_').str[0].astype(int)
-
-# Estrae le componenti della Cabina
-df[['Deck', 'CabinNum', 'Side']] = df['Cabin'].str.split('/', expand=True)
-
-# Droppa la colonna Cabin
-df.drop(columns=['Cabin'], inplace=True)
+    # === 4. Feature Engineering ===
 
 
-# Estrae il cognome dalla colonna Name
-df['Surname'] = df['Name'].str.split().str[-1]
+    # Group
+    combined_df['Group'] = combined_df['PassengerId'].str.split('_').str[0].astype(int)
 
-# Droppa la colonna Name
-df.drop(columns=['Name'], inplace=True)
+    # Group size solo su train
+    group_counts = combined_df['Group'].value_counts()
+    combined_df['Group_size'] = combined_df['Group'].map(group_counts)
 
-# Salva il file finale
-df.to_excel(output_file, index=False)
-print(f"File finale salvato in: '{output_file}'")
+        # New feature
+    combined_df['Solo']=(combined_df['Group_size']==1).astype(int)
 
+    # Split Cabin
+    combined_df[['Deck', 'CabinNum', 'Side']] = combined_df['Cabin'].str.split('/', expand=True)
+    combined_df.drop(columns=['Cabin'], inplace=True)
+
+    # New features - training set
+
+    combined_df['CabinNum'] = pd.to_numeric(combined_df['CabinNum'], errors='coerce')
+
+    # Crea le colonne Cabin_region1-7 lasciando NaN dove CabinNum è mancante
+    combined_df['Cabin_region1'] = combined_df['CabinNum'].apply(lambda x: 1 if x < 300 else (0 if pd.notna(x) else pd.NA))
+    combined_df['Cabin_region2'] = combined_df['CabinNum'].apply(lambda x: 1 if 300 <= x < 600 else (0 if pd.notna(x) else pd.NA))
+    combined_df['Cabin_region3'] = combined_df['CabinNum'].apply(lambda x: 1 if 600 <= x < 900 else (0 if pd.notna(x) else pd.NA))
+    combined_df['Cabin_region4'] = combined_df['CabinNum'].apply(lambda x: 1 if 900 <= x < 1200 else (0 if pd.notna(x) else pd.NA))
+    combined_df['Cabin_region5'] = combined_df['CabinNum'].apply(lambda x: 1 if 1200 <= x < 1500 else (0 if pd.notna(x) else pd.NA))
+    combined_df['Cabin_region6'] = combined_df['CabinNum'].apply(lambda x: 1 if 1500 <= x < 1800 else (0 if pd.notna(x) else pd.NA))
+    combined_df['Cabin_region7'] = combined_df['CabinNum'].apply(lambda x: 1 if x >= 1800 else (0 if pd.notna(x) else pd.NA))
+
+
+    # Surname
+    combined_df['Surname'] = combined_df['Name'].str.split().str[-1]
+    combined_df.drop(columns=['Name'], inplace=True)
+
+    # Calcolo spese
+    spesa_cols = ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
+    combined_df[spesa_cols] = combined_df[spesa_cols].fillna(0)
+    combined_df['Expendures'] = combined_df[spesa_cols].sum(axis=1)
+
+    combined_df['NoSpending'] = (combined_df['Expendures'] == 0).astype(int)
+
+
+    # Calcola la mediana solo sul training
+    expendures_median = combined_df.loc[combined_df['IsTrain'], 'Expendures'].median()
+
+    # Binarizza expendures
+    combined_df['Expendures'] = combined_df['Expendures'] > expendures_median
+
+    combined_df['AgeGroup'] = combined_df['Age'].apply(
+        lambda age: np.nan if pd.isna(age) else
+                    '0-18' if age <= 18 else
+                    '19-25' if age <= 25 else
+                    '25+'
+    )
+    # Print dei conteggi per ogni categoria di AgeGroup
+    #print("\nValori per ogni categoria di 'AgeGroup':")
+    #print(combined_df['AgeGroup'].value_counts(dropna=False))
+
+    # Drop colonne originali spese + Age se presente
+    combined_df.drop(columns=spesa_cols, inplace=True)
+    if 'Age' in combined_df.columns:
+        combined_df.drop(columns=['Age'], inplace=True)
+
+    #print("Valori mancanti nella colonna AgeGroup:", combined_df['AgeGroup'].isna().sum())
+
+
+    # === 5. Ritaglia i dataset finali ===
+    new_train = combined_df[combined_df['IsTrain']== True].copy()
+    new_val   = combined_df[combined_df['IsValidation']== True].copy()
+    new_test  = combined_df[combined_df['IsTest']== True].copy()
+
+    # === 6. Salva i file finali ===
+    new_train.to_excel('C:/Users/dvita/Desktop/TITANIC/train_df.xlsx', index=False)
+    new_val.to_excel('C:/Users/dvita/Desktop/TITANIC/val_df.xlsx', index=False)
+    new_test.to_excel('C:/Users/dvita/Desktop/TITANIC/test_df.xlsx', index=False)
+
+    print("File salvati correttamente.")
+    return combined_df
 
