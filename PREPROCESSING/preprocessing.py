@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 
 #df = pd.read_excel('C:/Users/Standard/Desktop/Titanic/Titanic/train_holdout.xlsx')
 
@@ -81,6 +82,16 @@ df['Cabin_region5'] = ((df['CabinNum'] >= 1200) & (df['CabinNum'] < 1500)).astyp
 df['Cabin_region6'] = ((df['CabinNum'] >= 1500) & (df['CabinNum'] < 1800)).astype(int)
 df['Cabin_region7'] = (df['CabinNum'] >= 1800).astype(int)
 
+
+df['AgeGroup'] = df['Age'].apply(
+    lambda age: np.nan if pd.isna(age) else
+                '0-18' if age <= 18 else
+                '19-25' if age <= 25 else
+                '25+'
+)
+
+
+
 exp_feats = ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
 
 fig, axes = plt.subplots(3, 2, figsize=(15, 15))
@@ -103,7 +114,53 @@ plt.subplots_adjust(hspace=0.4)  # aumenta lo spazio verticale tra i plot
 plt.show()
 
 
-df['Expendures'] = df[['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']].sum(axis=1, skipna=True)
+df['Expendures'] = df[['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']].sum(axis=1) #skipna=True)
+
+plt.figure(figsize=(10, 5))
+sns.boxplot(x='AgeGroup', y='Expendures', data=df)
+plt.title('Expenditure by Age Group')
+plt.ylabel('Total Expenditure')
+plt.xlabel('Age Group')
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+print("\nMediana spesa per Age_group:")
+print(df.groupby('AgeGroup')['Expendures'].median())
+
+# ============================
+# 🔍 2. Expenditure vs HomePlanet
+# ============================
+plt.figure(figsize=(10, 5))
+sns.boxplot(x='HomePlanet', y='Expendures', data=df)
+plt.title('Expenditure by HomePlanet')
+plt.ylabel('Total Expenditures')
+plt.xlabel('Home Planet')
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+print("\nMediana spesa per HomePlanet:")
+print(df.groupby('HomePlanet')['Expendures'].median())
+
+# ============================
+# 🔍 3. Expenditure vs Solo
+# ============================
+plt.figure(figsize=(10, 5))
+sns.boxplot(x='Solo', y='Expendures', data=df)
+plt.title('Expenditure by Destination')
+plt.ylabel('Total Expenditure')
+plt.xlabel('Solo')
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+print("\nMediana spesa per Solo:")
+print(df.groupby('Solo')['Expendures'].median())
+
+
+
+
 
 # Calcolo della mediana
 expendures_median = df['Expendures'].median()

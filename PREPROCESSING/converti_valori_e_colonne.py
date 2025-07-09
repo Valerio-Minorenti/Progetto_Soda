@@ -59,19 +59,8 @@ def converti_valori_colonne():
     combined_df['Surname'] = combined_df['Name'].str.split().str[-1]
     combined_df.drop(columns=['Name'], inplace=True)
 
-    # Calcolo spese
-    spesa_cols = ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
-    combined_df[spesa_cols] = combined_df[spesa_cols].fillna(0)
-    combined_df['Expendures'] = combined_df[spesa_cols].sum(axis=1)
+    #combined_df['FamilySize'] = combined_df['Surname'].map(lambda x: combined_df['Surname'].value_counts()[x])
 
-    combined_df['NoSpending'] = (combined_df['Expendures'] == 0).astype(int)
-
-
-    # Calcola la mediana solo sul training
-    expendures_median = combined_df.loc[combined_df['IsTrain'], 'Expendures'].median()
-
-    # Binarizza expendures
-    combined_df['Expendures'] = combined_df['Expendures'] > expendures_median
 
     combined_df['AgeGroup'] = combined_df['Age'].apply(
         lambda age: np.nan if pd.isna(age) else
@@ -79,9 +68,36 @@ def converti_valori_colonne():
                     '19-25' if age <= 25 else
                     '25+'
     )
+
+
+
+    #combined_df[spesa_cols] = combined_df[spesa_cols].fillna(0)
+    #combined_df['Expendures'] = combined_df[spesa_cols].sum(axis=1)
+
+    combined_df[['VIP', 'CryoSleep', 'RoomService' 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']] = combined_df[['VIP', 'CryoSleep', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']].fillna(value=0)
+    
+        # Calcolo spese
+    spesa_cols = ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
+
+    combined_df['Expendures'] = combined_df[spesa_cols].sum(axis=1)
+
+    combined_df['NoSpending'] = (combined_df['Expendures'] == 0).astype(int)
+
+#######################################
+
+    # Calcola la mediana solo sul training
+    #expendures_median = combined_df.loc[combined_df['IsTrain'], 'Expendures'].median()
+
+    # Binarizza expendures
+    #combined_df['Expendures'] = combined_df['Expendures'] > expendures_median
+
+#######################################
+
+
     # Print dei conteggi per ogni categoria di AgeGroup
     #print("\nValori per ogni categoria di 'AgeGroup':")
     #print(combined_df['AgeGroup'].value_counts(dropna=False))
+
 
     # Drop colonne originali spese + Age se presente
     combined_df.drop(columns=spesa_cols, inplace=True)

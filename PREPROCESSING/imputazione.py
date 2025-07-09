@@ -1,16 +1,17 @@
-from riempi_Home_Planet import riempi_Home_Planet
-from riempi_VIP import riempi_vip
-from riempi_cryo import riempi_cryo
-from riempi_deck import riempi_deck
-from riempi_Destination import riempi_Destination
-from riempi_Surname import riempi_Surname
-from riempi_side import riempi_side
-from missing_values import missing_values
-from encoding import encoding_statico
-from adaboost import adaboost
-from riempi_age import riempi_age_group
-from riempi_cabinregion import riempi_cabinregion
-from RandomForest import train_random_forest
+from Funzioni_imputazione.riempi_Home_Planet import riempi_Home_Planet
+from Funzioni_imputazione.riempi_VIP import riempi_vip
+from Funzioni_imputazione.riempi_cryo import riempi_cryo
+from Funzioni_imputazione.riempi_deck import riempi_deck
+from Funzioni_imputazione.riempi_Destination import riempi_Destination
+from Funzioni_imputazione.riempi_Surname import riempi_Surname
+from Funzioni_imputazione.riempi_side import riempi_side
+from Funzioni_imputazione.missing_values import missing_values
+from Funzioni_imputazione.encoding import encoding_statico
+from Funzioni_imputazione.adaboost import adaboost
+from Funzioni_imputazione.riempi_age import riempi_age_group
+from Funzioni_imputazione.riempi_cabinregion import riempi_cabinregion
+from Funzioni_imputazione.random_forest import random_forest
+
 
 def imputazione(combined_df, target_column='Transported'):
     combined_df = riempi_Home_Planet(combined_df)
@@ -24,6 +25,7 @@ def imputazione(combined_df, target_column='Transported'):
     combined_df = riempi_age_group(combined_df)
     combined_df = missing_values(combined_df)
     df_train_encoded, df_val_encoded, df_test_encoded = encoding_statico(combined_df)
-    ad_model = adaboost(df_train_encoded, df_val_encoded, target_column, n_estimators=100, random_state=42)
-    rf_model = train_random_forest(df_train_encoded, df_val_encoded, target_column)
-    return combined_df, ad_model, rf_model #, df_train_encoded, df_val_encoded, df_test_encoded, perché non li ritorniamo?
+    model = adaboost(df_train_encoded, df_val_encoded, target_column, n_estimators=250, random_state=42)
+    #model = random_forest(df_train_encoded, df_val_encoded, target_column, n_estimators=500, max_depth=4, random_state=42)
+
+    return combined_df, model

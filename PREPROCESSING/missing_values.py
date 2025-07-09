@@ -25,7 +25,7 @@ def missing_values(combined_df):
 
     # === 2. Drop colonne inutili ===
     columns_to_drop = [
-        'Group', 'VIP', 'Surname', 'CabinNum', 'PassengerId',
+        'Group', 'Surname', 'CabinNum', 'PassengerId', 'Expendures'
     ]
     combined_df = combined_df.drop(columns=columns_to_drop, errors='ignore')
 

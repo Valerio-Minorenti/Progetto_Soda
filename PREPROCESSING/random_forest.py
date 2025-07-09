@@ -1,7 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.ensemble import AdaBoostClassifier
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
     accuracy_score,
     classification_report,
@@ -9,18 +8,20 @@ from sklearn.metrics import (
     ConfusionMatrixDisplay
 )
 
-def adaboost(df_train_encoded, df_val_encoded, target_column, n_estimators=250, random_state=42):
+def random_forest(df_train_encoded, df_val_encoded, target_column, n_estimators=500, max_depth=4, random_state=42):
     """
-    Esegue classificazione AdaBoost con valutazione e grafico della confusion matrix.
+    Esegue classificazione Random Forest con valutazione e grafico della confusion matrix.
 
     Args:
         df_train_encoded (pd.DataFrame): Dataset di training preprocessato e codificato.
         df_val_encoded (pd.DataFrame): Dataset di validazione preprocessato e codificato.
         target_column (str): Nome della colonna target da predire.
-        n_estimators (int): Numero di estimatori per AdaBoost. Default = 100.
+        n_estimators (int): Numero di alberi nella foresta. Default = 100.
+        max_depth (int): Profondità massima degli alberi. Default = 8.
+        random_state (int): Semenza per riproducibilità. Default = 42.
 
     Returns:
-        model: Modello addestrato (AdaBoostClassifier)
+        model: Modello addestrato (RandomForestClassifier)
     """
 
     # 1. Split in X / y
@@ -30,17 +31,16 @@ def adaboost(df_train_encoded, df_val_encoded, target_column, n_estimators=250, 
     X_val = df_val_encoded.drop(columns=[target_column])
     y_val = df_val_encoded[target_column]
 
-    # 2. Inizializza modello AdaBoost (versione >= 1.2 → usa "estimator")
-    base_model = DecisionTreeClassifier(max_depth=4, random_state=random_state)
-    model = AdaBoostClassifier(
-        estimator=base_model,
-        n_estimators=n_estimators,
-        learning_rate=1.0,
-        random_state=random_state
-    )
-
     y_train = y_train.astype(bool)
     y_val = y_val.astype(bool)
+
+    # 2. Inizializza modello Random Forest
+    model = RandomForestClassifier(
+        n_estimators=n_estimators,
+        max_depth=max_depth,
+        random_state=random_state,
+        n_jobs=-1
+    )
 
     # 3. Allenamento
     model.fit(X_train, y_train)
@@ -49,7 +49,7 @@ def adaboost(df_train_encoded, df_val_encoded, target_column, n_estimators=250, 
     y_pred = model.predict(X_val)
 
     # 5. Valutazione
-    print("\n=== Risultati AdaBoost ===")
+    print("\n=== Risultati Random Forest ===")
     acc = accuracy_score(y_val, y_pred)
     print(f"Accuracy: {acc:.4f}\n")
 
@@ -60,8 +60,8 @@ def adaboost(df_train_encoded, df_val_encoded, target_column, n_estimators=250, 
 
     # 6. Grafico Confusion Matrix
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=model.classes_)
-    disp.plot(cmap='Blues', values_format='d')
-    plt.title(f"Confusion Matrix (AdaBoost, n_estimators={n_estimators})")
+    disp.plot(cmap='Greens', values_format='d')
+    plt.title(f"Confusion Matrix (Random Forest, n_estimators={n_estimators}, max_depth={max_depth})")
     plt.grid(False)
     plt.show()
 

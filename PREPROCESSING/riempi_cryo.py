@@ -4,7 +4,6 @@ def riempi_cryo(combined_df):
 
     # Imputazione basata su NoSpending
     combined_df.loc[combined_df['CryoSleep'].isna() & (combined_df['NoSpending'] == True),  'CryoSleep'] = 1
-    combined_df.loc[combined_df['CryoSleep'].isna() & (combined_df['Expendures'] == True), 'CryoSleep'] = 0
 
         # Fill con la moda calcolata sul train per i rimanenti NaN
     train_df = combined_df[combined_df['IsTrain'] == True]
